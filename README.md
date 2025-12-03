@@ -1,112 +1,149 @@
-# Semantic Scholar Journal Scraper 📚
+# Semantic Scholar Journal Scraper
 
-Aplikasi Python sederhana untuk mengunduh dataset jurnal penelitian dari **Semantic Scholar API**. Aplikasi ini dirancang untuk mengambil metadata jurnal (Judul, Penulis, Abstrak, Tahun, dll) dengan filter otomatis **5 tahun terakhir**.
+A Python application for extracting academic paper metadata from the Semantic Scholar API. This tool enables researchers to efficiently collect scholarly publication data with automatic filtering for the most recent publications.
 
-## 📋 Prasyarat
+## Features
 
-Pastikan komputer Anda sudah terinstal:
-- **Python 3.x** (Cek dengan mengetik `python --version` di terminal/CMD)
-- Koneksi Internet
+- **Automated Data Collection**: Retrieve comprehensive paper metadata including titles, authors, abstracts, citations, DOI, and keywords
+- **Time-based Filtering**: Configurable year range filtering (default: last 5 years)
+- **Rate Limit Management**: Built-in request throttling to comply with API limitations  
+- **Data Export**: Clean CSV output with structured data organization
+- **Error Handling**: Robust error management for network issues and API responses
+- **Progress Tracking**: Real-time progress indicators during data collection
 
----
+## Prerequisites
 
-## 🛠️ Langkah 1: Menyiapkan Virtual Environment (Instalasi)
+- Python 3.7 or higher
+- Internet connection
+- No API key required (uses public Semantic Scholar API)
 
-Kita menggunakan `venv` agar library yang diinstal tidak tercampur dengan sistem global komputer Anda.
+## Installation
 
-### 1. Buat dan Masuk ke Folder Proyek
-Buka Terminal (macOS/Linux) atau Command Prompt/PowerShell (Windows):
+### 1. Clone the Repository
 
 ```bash
-mkdir riset_jurnal
-cd riset_jurnal
-````
+git clone https://github.com/fikreynurz/AutomationTesting-A11.git
+cd jurnal_scraper
+```
 
-### 2\. Buat Virtual Environment
+### 2. Create Virtual Environment
 
-Jalankan perintah berikut untuk membuat folder lingkungan isolasi bernama `venv`:
+Create an isolated Python environment to avoid dependency conflicts:
 
 **Windows:**
-
 ```bash
 python -m venv venv
-```
-
-**macOS / Linux:**
-
-```bash
-python3 -m venv venv
-```
-
-### 3\. Aktifkan Virtual Environment
-
-Setelah diaktifkan, terminal Anda akan menampilkan tanda `(venv)` di sebelah kiri.
-
-**Windows:**
-
-```bash
 venv\Scripts\activate
 ```
 
-**macOS / Linux:**
-
+**macOS/Linux:**
 ```bash
+python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 4\. Install Library
+### 3. Install Dependencies
 
-Install library yang dibutuhkan hanya di dalam lingkungan ini:
+```bash
+pip install -r requirements.txt
+```
 
+Or install manually:
 ```bash
 pip install requests pandas
 ```
 
------
+## Usage
 
-## 🚀 Langkah 2: Menjalankan Program
+### Basic Usage
 
-Setelah lingkungan siap dan file script (`scraper.py`) sudah dibuat, ikuti langkah ini untuk memulai scraping.
-
-### 1\. Konfigurasi Topik Penelitian
-
-Buka file `scraper.py` menggunakan Text Editor (Notepad, VS Code, dll). Cari bagian paling bawah pada blok `__main__` dan ubah variabel `topik`:
+1. **Configure Search Parameters**: Edit the main execution block in `scraper.py`:
 
 ```python
 if __name__ == "__main__":
-    # Ganti topik penelitian di sini
-    topik = "machine learning optimization"  <-- GANTI INI
+    # Specify your research topic
+    topic = "machine learning optimization"
     
-    # Jalankan
-    fetch_semantic_scholar_filtered(topik, total_results=1000, years_back=5)
+    # Execute scraping
+    fetch_semantic_scholar_filtered(
+        query=topic,
+        total_results=1000,  # Number of papers to retrieve
+        years_back=5         # Years from current date
+    )
 ```
 
-### 2\. Jalankan Script
-
-Pastikan terminal masih menampilkan status `(venv)`, lalu ketik:
+2. **Run the Scraper**:
 
 ```bash
 python scraper.py
 ```
 
-### 3\. Hasil Output
+### Output Structure
 
-Program akan berjalan dan menampilkan progres per 100 data. Setelah selesai, file CSV akan muncul di folder proyek dengan format nama:
-`dataset_terbaru_machine_learning_optimization.csv`
+The application generates CSV files in the `output/` directory with the following columns:
 
------
+| Column | Description |
+|--------|-------------|
+| Title | Paper title |
+| Year | Publication year |
+| Citations | Citation count |
+| Authors | Author names (comma-separated) |
+| Venue | Publication venue |
+| URL | Semantic Scholar paper URL |
+| DOI | Digital Object Identifier |
+| Keywords | Research fields/topics |
+| Abstract | Paper abstract |
 
-## 🛑 Cara Keluar dari Virtual Environment
+### Configuration Options
 
-Jika sudah selesai menggunakan program, Anda bisa menonaktifkan mode virtual environment dengan perintah:
+- **total_results**: Maximum number of papers to retrieve (default: 1000)
+- **years_back**: Number of years from current date to include (default: 5)
+- **query**: Search keywords or phrases
 
-```bash
-deactivate
+## API Information
+
+This tool uses the [Semantic Scholar Academic Graph API](https://api.semanticscholar.org/):
+- **Endpoint**: `https://api.semanticscholar.org/graph/v1/paper/search`
+- **Rate Limits**: Automatically handled with exponential backoff
+- **Data Source**: Open academic publications database
+
+## Project Structure
+
+```
+jurnal_scraper/
+├── scraper.py          # Main scraping application
+├── output/             # Generated CSV files
+├── requirements.txt    # Python dependencies
+├── .gitignore         # Git ignore rules
+└── README.md          # Documentation
 ```
 
------
+## Error Handling
 
-*Dibuat untuk keperluan penyusunan dataset penelitian.*
+The application includes comprehensive error handling for:
+- Network connectivity issues
+- API rate limiting (HTTP 429)
+- Invalid API responses
+- Data parsing errors
+- File system operations
 
-```
-```
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/improvement`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/improvement`)
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+## Acknowledgments
+
+- [Semantic Scholar](https://www.semanticscholar.org/) for providing the academic search API
+- Built for academic research and data collection purposes
+
+## Support
+
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/fikreynurz/AutomationTesting-A11) or contact the maintainer.
