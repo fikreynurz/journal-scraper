@@ -1,8 +1,3 @@
-Tentu, ini adalah draft `README.md` yang rapi dan profesional. File ini dirancang agar siapapun (termasuk dosen pembimbing atau rekan tim Anda) bisa menjalankan program ini dari nol tanpa merusak pengaturan Python di komputer mereka.
-
-Silakan simpan teks di bawah ini dengan nama file **`README.md`**.
-
------
 
 ````markdown
 # Semantic Scholar Journal Scraper 📚
