@@ -64,7 +64,7 @@ pip install requests pandas
 
 -----
 
-## 🚀 Langkah 3: Menjalankan Program
+## 🚀 Langkah 2: Menjalankan Program
 
 Setelah lingkungan siap dan file script (`scraper.py`) sudah dibuat, ikuti langkah ini untuk memulai scraping.
 
