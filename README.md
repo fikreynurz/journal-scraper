@@ -1,5 +1,3 @@
-
-````markdown
 # Semantic Scholar Journal Scraper 📚
 
 Aplikasi Python sederhana untuk mengunduh dataset jurnal penelitian dari **Semantic Scholar API**. Aplikasi ini dirancang untuk mengambil metadata jurnal (Judul, Penulis, Abstrak, Tahun, dll) dengan filter otomatis **5 tahun terakhir**.
