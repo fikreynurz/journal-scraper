@@ -2,10 +2,15 @@ import requests
 import pandas as pd
 import time
 import os
+import json
 from datetime import datetime
 
-def fetch_semantic_scholar_filtered(query, total_results=1000, years_back=5):
+def fetch_semantic_scholar_filtered(query, total_results=1000, years_back=5, output_format="csv"):
     base_url = "https://api.semanticscholar.org/graph/v1/paper/search"
+    
+    # Validasi format output
+    if output_format.lower() not in ["csv", "json", "both"]:
+        raise ValueError("Format output harus 'csv', 'json', atau 'both'")
     
     # 1. Menghitung Rentang Tahun Dinamis
     current_year = datetime.now().year
@@ -13,9 +18,10 @@ def fetch_semantic_scholar_filtered(query, total_results=1000, years_back=5):
     year_range = f"{start_year}-{current_year}"
     
     print(f"--- Konfigurasi ---")
-    print(f"Keyword     : {query}")
-    print(f"Filter Tahun: {year_range} ({years_back} tahun terakhir)")
-    print(f"Target Data : {total_results}")
+    print(f"Keyword      : {query}")
+    print(f"Filter Tahun : {year_range} ({years_back} tahun terakhir)")
+    print(f"Target Data  : {total_results}")
+    print(f"Format Output: {output_format.upper()}")
     print(f"-------------------")
 
     # Field yang ingin diambil
@@ -97,26 +103,74 @@ def fetch_semantic_scholar_filtered(query, total_results=1000, years_back=5):
             print(f"Terjadi kesalahan koneksi: {e}")
             break
 
-    # Simpan ke CSV
+    # Simpan ke file sesuai format yang dipilih
     if all_papers:
-        df = pd.DataFrame(all_papers)
-        
-        # Bersihkan format
-        df['Abstract'] = df['Abstract'].astype(str).str.replace(r'\n', ' ', regex=True)
-        
-        # Urutkan berdasarkan tahun terbaru agar lebih rapi
-        df = df.sort_values(by='Year', ascending=False)
-        
         # Buat folder output jika belum ada
         output_folder = "output"
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
             print(f"📁 Folder '{output_folder}' berhasil dibuat.")
         
-        filename = f"dataset_terbaru_{query.replace(' ', '_')}.csv"
-        filepath = os.path.join(output_folder, filename)
-        df.to_csv(filepath, index=False)
-        print(f"\n✅ Selesai! {len(df)} jurnal dari tahun {year_range} tersimpan di '{filepath}'")
+        # Fungsi untuk menyimpan ke CSV
+        def save_to_csv():
+            df = pd.DataFrame(all_papers)
+            
+            # Bersihkan format
+            df['Abstract'] = df['Abstract'].astype(str).str.replace(r'\n', ' ', regex=True)
+            
+            # Urutkan berdasarkan tahun terbaru agar lebih rapi
+            df = df.sort_values(by='Year', ascending=False)
+            
+            filename = f"dataset_terbaru_{query.replace(' ', '_')}.csv"
+            filepath = os.path.join(output_folder, filename)
+            df.to_csv(filepath, index=False)
+            print(f"📄 CSV: {len(df)} jurnal tersimpan di '{filepath}'")
+            return filepath
+        
+        # Fungsi untuk menyimpan ke JSON
+        def save_to_json():
+            # Urutkan berdasarkan tahun terbaru
+            all_papers_sorted = sorted(all_papers, key=lambda x: x['Year'], reverse=True)
+            
+            # Bersihkan format abstract untuk JSON
+            for paper in all_papers_sorted:
+                if paper.get('Abstract'):
+                    paper['Abstract'] = paper['Abstract'].replace('\n', ' ')
+            
+            filename = f"dataset_terbaru_{query.replace(' ', '_')}.json"
+            filepath = os.path.join(output_folder, filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "metadata": {
+                        "query": query,
+                        "year_range": year_range,
+                        "total_results": len(all_papers_sorted),
+                        "generated_at": datetime.now().isoformat()
+                    },
+                    "papers": all_papers_sorted
+                }, f, indent=2, ensure_ascii=False)
+            
+            print(f"📄 JSON: {len(all_papers_sorted)} jurnal tersimpan di '{filepath}'")
+            return filepath
+        
+        # Eksekusi sesuai format yang dipilih
+        saved_files = []
+        
+        if output_format.lower() == "csv":
+            saved_files.append(save_to_csv())
+            
+        elif output_format.lower() == "json":
+            saved_files.append(save_to_json())
+            
+        elif output_format.lower() == "both":
+            print(f"\n📦 Menyimpan dalam 2 format...")
+            saved_files.append(save_to_csv())
+            saved_files.append(save_to_json())
+        
+        print(f"\n✅ Selesai! {len(all_papers)} jurnal dari tahun {year_range} berhasil disimpan.")
+        if len(saved_files) > 1:
+            print(f"📁 File tersimpan: {len(saved_files)} format berbeda")
     else:
         print("Gagal mendapatkan data atau tidak ada jurnal yang cocok.")
 
@@ -125,5 +179,13 @@ if __name__ == "__main__":
     # Ganti topik penelitian di sini
     topik = "computer science"
     
-    # Jalankan
-    fetch_semantic_scholar_filtered(topik, total_results=10, years_back=5)
+    # Pilih salah satu format output:
+    
+    # 1. Format CSV saja
+    fetch_semantic_scholar_filtered(topik, total_results=50, years_back=5, output_format="csv")
+    
+    # 2. Format JSON saja
+    # fetch_semantic_scholar_filtered(topik, total_results=50, years_back=5, output_format="json")
+    
+    # 3. Kedua format (CSV + JSON)
+    # fetch_semantic_scholar_filtered(topik, total_results=50, years_back=5, output_format="both")
